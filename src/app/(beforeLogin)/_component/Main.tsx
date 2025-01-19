@@ -1,7 +1,7 @@
 import styles from "@/app/page.module.css";
 import Image from "next/image";
 import Link from "next/link";
-import DLogo from "@/../public/zlogo.png";
+import DLogo from "@/../public/dlogo.png";
 
 export default function Main() {
   return (

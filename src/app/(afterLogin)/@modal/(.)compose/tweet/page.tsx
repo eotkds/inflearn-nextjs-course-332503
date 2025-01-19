@@ -27,7 +27,7 @@ export default function Page() {
 
   const me = {
     id: 'd_com',
-    image: '/5Udwvqim.jpg'
+    image: '/4Udwvqim.png'
   };
 
   return (

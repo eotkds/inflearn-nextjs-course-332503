@@ -6,7 +6,7 @@ export default function ProfilePage() {
   const user = {
     id: 'd_com',
     nickname: 'dds',
-    image: '/5Udwvqim.jpg'
+    image: '/4Udwvqim.png'
   }
 
   return (

@@ -21,7 +21,7 @@ export default function CommentForm() {
 
     const me = {
         id: 'd_com',
-        image: '/5Udwvqim.jpg'
+        image: '/4Udwvqim.png'
       };
       
     return (
