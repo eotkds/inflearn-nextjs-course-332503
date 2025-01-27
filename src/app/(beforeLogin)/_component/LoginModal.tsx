@@ -1,18 +1,47 @@
 "use client"; // 비동기를 통해 서버 컴포넌트를 호출하는 것도 가능하다.
 
+import { useRouter } from 'next/navigation';
 import style from './login.module.css';
-import {useState} from "react";
+import {ChangeEventHandler, FormEventHandler, useState} from "react";
+import { signIn } from 'next-auth/react';
 
 export default function LoginModal() {
-  const [id, setId] = useState();
-  const [password, setPassword] = useState();
-  const [message, setMessage] = useState();
-  const onSubmit = () => {};
-  const onClickClose = () => {};
+  const router = useRouter();
+  const [id, setId] = useState('');
+  const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
 
-  const onChangeId = () => {};
+  const onSubmit: FormEventHandler<HTMLFormElement> = async (e) => {
+    e.preventDefault();
+    setMessage('');
+    
+    try{
+      await signIn('credentials', {
+        username: id,
+        password: password,
+        redirect: false,
+      });
+      console.log(id, password);
+  
+      router.replace('/home');
 
-  const onChangePassword = () => {};
+    }catch(e){
+      console.error(e);
+      setMessage('아이디 또는 비밀번호가 틀렸습니다.');
+    }
+
+
+  };
+  
+  const onClickClose = () => {
+    router.back();
+  };
+  const onChangeId: ChangeEventHandler<HTMLInputElement> = (e) => {
+    setId(e.target.value);
+  };
+  const onChangePassword: ChangeEventHandler<HTMLInputElement> = (e) => {
+    setPassword(e.target.value);
+  };
 
   return (
     <div className={style.modalBackground}>
