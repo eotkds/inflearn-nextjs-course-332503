@@ -8,23 +8,19 @@ import PostArticle from './PostArticle';
 import 'dayjs/locale/ko';
 import { faker } from '@faker-js/faker';
 import PostImages from './PostImages';
-
+import { Post as IPost } from '@/model/Post';
 dayjs.extend(relativeTime);
 dayjs.locale('ko');
 
-export default function Post({noImage}: {noImage?: boolean}) {
+type Props = {
+  noImage?: boolean;
+  post: IPost;
+}
 
-    const target = {
-        User: {
-          id: 'elonmusk',
-          nickname: 'Elon Musk',
-          image: '/yRsRRjGO.jpg',
-        },
-        postId: 1,
-        content: '클론코딩 라이브로 하니 너무 힘들어요 ㅠㅠ',
-        createdAt: new Date(),
-        Images: [] as any[],
-      }
+export default function Post({noImage, post}: Props) {
+
+    const target = post;
+    
       if(Math.random() > 0.5 && !noImage) {
         target.Images.push(
           {

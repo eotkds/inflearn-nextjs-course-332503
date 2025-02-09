@@ -2,28 +2,29 @@ import styles from "./home.module.css";
 import TapProvider from "./_component/TapProvider";
 import Tab from "./_component/Tab";
 import PostForm from "./_component/PostForm";
-import Post from "@/app/(afterLogin)/_component/Post";
+import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
+import { getPostRecommends } from "./_lib/getPostRecommends";
+import PostRecommends from "./_component/PostRecommends";
 
+export default async function Home() {
+  const queryClient = new QueryClient();
 
-export default function Home() {
+  await queryClient.prefetchQuery({
+    queryKey: ["posts", "recommends"],
+    queryFn: getPostRecommends,
+  });
+
+  const dehydratedState = dehydrate(queryClient);
+
   return (
     <main className={styles.main}>
-      <TapProvider>
-        <Tab />
-        <PostForm />
-        <Post/>
-        <Post/>
-        <Post/>
-        <Post/>
-        <Post/>
-        <Post/>
-        <Post/>
-        <Post/>
-        <Post/>
-        <Post/>
-        <Post/>
-        <Post/>
-      </TapProvider>
+      <HydrationBoundary state={dehydratedState}>
+        <TapProvider>
+          <Tab />
+          <PostForm />
+          <PostRecommends />
+        </TapProvider>
+      </HydrationBoundary>
     </main>
   );
 }

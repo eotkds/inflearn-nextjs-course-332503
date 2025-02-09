@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { MSWProvider } from "./_component/MSWcomponent";
+import AuthSession from "./_component/authSession";
 
 
 if (process.env.NEXT_RUNTIME === 'nodejs' && process.env.NODE_ENV !== 'production') {
@@ -32,7 +33,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <MSWProvider>{children}</MSWProvider>
+        <MSWProvider>
+          <AuthSession>{children}</AuthSession>
+        </MSWProvider>
       </body>
     </html>
   );

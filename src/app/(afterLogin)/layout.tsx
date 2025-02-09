@@ -8,27 +8,29 @@ import LogoutButton from "./_component/LogoutButton";
 import TrendSection from "./_component/TrendSection";
 import FollowRecommend from "./_component/FollowRecommend";
 import RightSearchZone from "./_component/RightSearchZone";
+import { auth } from "@/auth";
+import RQProvider from "./_component/RQprovider";
 
 
-export default function AfterLoginLayout({
+export default async function AfterLoginLayout({
   children,
   modal,
 }: Readonly<{
   children: React.ReactNode;
   modal: React.ReactNode;
 }>) {
-  
+  const session = await auth();
   return ( 
   <div className={style.container}>
       <header className={style.leftSectionWrapper}>
         <section className={style.leftSection}>
           <div className={style.leftSectionFixed}>
-            <Link href="/home" className={style.logo}>
+            <Link href={session?.user ? "/home" : "/"} className={style.logo}>
               <div className={style.logoPill}>
                 <Image src={DLogo} alt="d.com 로고" width={40} height={40} />
               </div>
             </Link>
-            <nav>
+            {session?.user && <>  <nav>
               <ul>
                 <NavMenu />
               </ul>
@@ -39,9 +41,12 @@ export default function AfterLoginLayout({
               </Link>
             </nav>
             <LogoutButton />
+            </>
+            }
           </div>
         </section>
       </header>
+      <RQProvider>
       <div className={style.rightSectionWrapper}>
         <div className={style.rightSectionInner}>
           <main className={style.main}>
@@ -59,6 +64,7 @@ export default function AfterLoginLayout({
           </section>
         </div>
       </div>
+      </RQProvider>
       {modal}
     </div>
   );
