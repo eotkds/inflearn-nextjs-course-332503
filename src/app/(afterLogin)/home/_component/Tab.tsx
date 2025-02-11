@@ -1,18 +1,19 @@
 'use client'
 
-import { useState } from 'react';
+import { useContext } from 'react';
 import style from './tab.module.css';
+import { TapContext } from './TapProvider';
 
 export default function Tab() {
 
-    const [tab, setTab] = useState('rec')
+  const {tab, setTab} = useContext(TapContext);
 
     const onClickRec = () => {
         setTab('rec')
     }
 
     const onClickFol = () => {
-        console.log('팔로우 중')
+        setTab('fol')
     }
 
   return (
