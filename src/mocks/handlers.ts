@@ -164,6 +164,7 @@ export const handlers = [
     }),
     http.get(`${baseUrl}/api/search/:tag`, ({ request, params }) => {
         const { tag } = params;
+        console.log(params);
         return HttpResponse.json([
             {
                 postId: 1,
