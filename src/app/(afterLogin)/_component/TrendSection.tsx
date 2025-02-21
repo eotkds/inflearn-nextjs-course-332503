@@ -4,29 +4,36 @@ import style from "./trendSection.module.css";
 import Trend from "./Trend";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { getTrends } from "../_lib/getTrends";
+import { useQuery } from "@tanstack/react-query";
+import { Hashtag } from "@/model/Hashtag";
 
 export default function TrendSection() {
+    const { data : session } = useSession();
+
+    const {data} = useQuery<Hashtag[]>({
+        queryKey: ["trends"],
+        queryFn: getTrends,
+        staleTime: 1000 * 60, //fresh -> stale 으로 변경되는 시간
+        gcTime: 1000 * 60 * 3, //stale -> 데이터가 사라지는 시간
+        enabled: !!session?.user ,
+    })
+
     const pathname = usePathname();
     if(pathname === "/explore"){
         return null;
     }
-    const { data } = useSession();
+    
+  
 
-    if(data?.user){
+    if(session?.user){
         return (
             <div className={style.trendBg}>
                 <div className={style.trend}>
                     <h3>나를 위한 트렌드</h3>
-                    <Trend />
-                    <Trend />
-                    <Trend />
-                    <Trend />
-                    <Trend />
-                    <Trend />
-                    <Trend />
-                    <Trend />
-                    <Trend />
-                    <Trend />
+                    {data?.map(trend => (
+                        <Trend key={trend.title} trend={trend} />
+                    ))}
                 </div>
             </div>
         );

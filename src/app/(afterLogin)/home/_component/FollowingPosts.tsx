@@ -7,7 +7,6 @@ import Post from "@/app/(afterLogin)/_component/Post";
 
 
 export default function FollowingPosts() {
-    console.log('팔로우 중');
     const {data} = useQuery<IPost[]>({
         queryKey: ["posts", "followings"],
         queryFn: getFollowingPosts,

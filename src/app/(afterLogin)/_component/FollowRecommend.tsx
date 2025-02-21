@@ -1,15 +1,13 @@
 'use client';
 
 import style from "./followRecommend.module.css";
+import { User } from "@/model/User";
 
-export default function FollowRecommend() {
+type Prop = { user : User}
+
+export default function FollowRecommend({user}: Prop) {
     const onFollow = () => {};
-    const user = {
-        id: 'elonmusk',
-        nickname: 'Elon Musk',
-        image: '/yRsRRjGO.jpg',
-    }
-
+    console.log(user);
     return (
         <div className={style.container}>
             <div className={style.userLogoSection}>
