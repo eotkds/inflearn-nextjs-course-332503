@@ -1,14 +1,35 @@
-import Post from "../_component/Post";
+import { QueryClient } from "@tanstack/react-query";
 import style from "./profile.module.css";
 import { auth } from "@/auth";
+import UserPosts from "./_component/UserPosts";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 
-export default async function ProfilePage() {
+import { getUser } from "./_lib/getUser";
+import { getUserPosts } from "./_lib/getUserPosts";
+import UserInfo from "./_component/UserInfo";
+type Props = {
+  params : Promise<{username: string}>;
+}
 
-  const user = {
-    id: 'd_com',
-    nickname: 'dds',
-    image: '/4Udwvqim.png'
-  }
+
+export default async function ProfilePage({ params }: Props){
+  const { username } = await params;
+
+  const queryClient = new QueryClient();
+
+  await queryClient.prefetchQuery({
+    queryKey: ["users", username],
+    queryFn: getUser,
+  });
+
+
+  await queryClient.prefetchQuery({
+    queryKey: ["posts", "users", username],
+    queryFn: getUserPosts,
+  });
+
+  const dehydratedState = dehydrate(queryClient);
+  console.log('dehydratedState', dehydratedState)
   const session = await auth();
   console.log(session);
   // 250129
@@ -18,28 +39,13 @@ export default async function ProfilePage() {
   // 가입하기 버튼 클릭 시 /i/flow/signup 모달
   return (
     <main className={style.main}>
-    <div className={style.header}>
-      {/* <BackButton /> */}
-      <h3 className={style.headerTitle}>{user.nickname}</h3>
-    </div>
-    <div className={style.userZone}>
-      <div className={style.userImage}>
-        <img src={user.image} alt={user.id}/>
-      </div>
-      <div className={style.userName}>
-        <div>{user.nickname}</div>
-        <div>@{user.id}</div>
-      </div>
-      <button className={style.followButton}>팔로우</button>
-    </div>
+      <HydrationBoundary state={dehydratedState}>
+    <UserInfo username={username} />
     <div>
-      <Post />
-      <Post />
-      <Post />
-      <Post />
-      <Post />
-      <Post />
+      <UserPosts username={username} />
     </div>
+    </HydrationBoundary>
   </main>
   );
+
 }

@@ -10,7 +10,7 @@ type Props = {
 }
 
 export default async function SearchPage({searchParams}: Props) {
-   const query = await searchParams;
+   const query = await searchParams; // next15 버전 에서는 이렇게 사용
 
     return (
         <main className={style.main}>
