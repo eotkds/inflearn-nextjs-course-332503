@@ -62,8 +62,13 @@ export default async function AfterLoginLayout({
           </section>
         </div>
       </div>
+      {modal} 
+      {/* 
+        모달 컴포넌트 렌더링 
+        RQProvider 커버를 잘해야하는 이유
+        https://www.inflearn.com/courses/lecture?courseId=332503&type=LECTURE&unitId=194505&subtitleLanguage=ko&tab=QnA&q=1207556&category=questionDetail
+       */}
       </RQProvider>
-      {modal}
     </div>
   );
 }

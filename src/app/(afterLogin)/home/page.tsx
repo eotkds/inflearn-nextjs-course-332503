@@ -3,7 +3,7 @@ import TapProvider from "./_component/TapProvider";
 import Tab from "./_component/Tab";
 import PostForm from "./_component/PostForm";
 import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
-import { getPostRecommends } from "./_lib/getPostRecommends.ts";
+import { getPostRecommends } from "./_lib/getPostRecommends";
 import TabDecider from "./_component/TabDecider";
 
 export default async function Home() {

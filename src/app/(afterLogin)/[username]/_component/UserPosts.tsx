@@ -23,6 +23,6 @@ export default function UserPosts({username}: {username: string}) {
         return data?.map((post) => (
           <Post key={post.postId} post={post} />
         ))
-      }
-      return null;
+    }
+    return null;
 }

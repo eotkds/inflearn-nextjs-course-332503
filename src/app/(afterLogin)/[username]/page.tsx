@@ -29,9 +29,9 @@ export default async function ProfilePage({ params }: Props){
   });
 
   const dehydratedState = dehydrate(queryClient);
-  console.log('dehydratedState', dehydratedState)
+
   const session = await auth();
-  console.log(session);
+
   // 250129
   // 팔로우 버튼 클릭 시 팔로우 상태 변경
   // 비로그인 시 팔로우 안내 & 로그인 유도 모달(사진참조)

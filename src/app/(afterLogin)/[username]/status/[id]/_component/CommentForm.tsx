@@ -2,8 +2,16 @@
 
 import { useState, useRef } from "react";
 import style from "./commentForm.module.css";
+import { useQueryClient } from "@tanstack/react-query";
 
-export default function CommentForm() {
+export default function CommentForm({id}: {id: string}) {
+  const queryClient = useQueryClient();
+  const post = queryClient.getQueryData(["posts", id]);
+
+  if(!post){
+    return null;
+  }
+
     const [content, setContent] = useState("");
     const imageRef = useRef<HTMLInputElement>(null);
     const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
