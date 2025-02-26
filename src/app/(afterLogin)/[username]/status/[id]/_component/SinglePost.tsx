@@ -18,8 +18,6 @@ export default function SinglePost({id, noImage}: Props) {
         staleTime: 1000 * 60, //fresh -> stale 으로 변경되는 시간
         gcTime: 1000 * 60 * 3, //stale -> 데이터가 사라지는 시간
     })
-    console.log("post", post);
-    console.log("error", error);
 
 
     if (error){

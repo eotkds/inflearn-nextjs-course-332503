@@ -12,8 +12,6 @@ export default function FollowRecommendSection() {
         queryFn: getFollowRecommends,
     });
 
-    console.log(data);
-
     return (
         data?.map(user => <FollowRecommend key={user.id} user={user} />)
     );

@@ -7,7 +7,6 @@ type Prop = { user : User}
 
 export default function FollowRecommend({user}: Prop) {
     const onFollow = () => {};
-    console.log(user);
     return (
         <div className={style.container}>
             <div className={style.userLogoSection}>

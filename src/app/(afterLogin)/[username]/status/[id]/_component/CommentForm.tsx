@@ -3,14 +3,11 @@
 import { useState, useRef } from "react";
 import style from "./commentForm.module.css";
 import { useQueryClient } from "@tanstack/react-query";
-
+import { useSession } from "next-auth/react";
 export default function CommentForm({id}: {id: string}) {
-  const queryClient = useQueryClient();
-  const post = queryClient.getQueryData(["posts", id]);
 
-  if(!post){
-    return null;
-  }
+
+    const {data: me} = useSession();
 
     const [content, setContent] = useState("");
     const imageRef = useRef<HTMLInputElement>(null);
@@ -26,17 +23,18 @@ export default function CommentForm({id}: {id: string}) {
     const onClickButton = () => {
         console.log("clicked");
     }
-
-    const me = {
-        id: 'd_com',
-        image: '/4Udwvqim.png'
-      };
+    const queryClient = useQueryClient();
+    const post = queryClient.getQueryData(["posts", id]);
+  
+    if(!post){
+      return null;
+    }
       
     return (
         <form className={style.postForm} onSubmit={onSubmit}>
       <div className={style.postUserSection}>
         <div className={style.postUserImage}>
-          <img src={me.image} alt={me.id}/>
+          <img src={me?.user?.image} alt={me?.user?.email}/>
         </div>
       </div>
       <div className={style.postInputSection}>

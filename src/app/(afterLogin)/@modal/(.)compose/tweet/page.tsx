@@ -1,15 +1,17 @@
 "use client";
 
+import { useSession } from "next-auth/react";
 import style from "./modal.module.css";
 import { useState, useRef } from "react";
-
+import { useRouter } from "next/navigation";
 export default function Page() {
+  const router = useRouter();
     const [content, setContent] = useState("");
-
+    const {data: me} = useSession();
 
   const imageRef = useRef<HTMLInputElement>(null);
   const onClickClose = () => {
-    console.log("close");
+    router.back();
   };
 
   const onSubmit = () => {
@@ -24,11 +26,6 @@ export default function Page() {
     console.log("click button");
   };
 
-
-  const me = {
-    id: 'd_com',
-    image: '/4Udwvqim.png'
-  };
 
   return (
     <div className={style.modalBackground}>
@@ -46,7 +43,7 @@ export default function Page() {
           <div className={style.modalBody}>
             <div className={style.postUserSection}>
               <div className={style.postUserImage}>
-                <img src={me.image} alt={me.id} />
+                <img src={me?.user?.image} alt={me?.user?.email} />
               </div>
             </div>
             <div className={style.inputDiv}>
