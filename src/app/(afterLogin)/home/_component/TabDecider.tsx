@@ -7,7 +7,6 @@ import FollowingPosts from "./FollowingPosts"
 
 export default function TabDecider() {
     const {tab} = useContext(TapContext);
-    console.log(tab);
     if(tab === "rec"){
         return <PostRecommends />
     }

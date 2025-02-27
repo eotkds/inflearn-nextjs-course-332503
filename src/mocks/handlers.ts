@@ -61,15 +61,12 @@ export const handlers = [
                 content: `${
                     cursor + 2
                 } Z.com is so marvelous. I'm gonna buy that.`,
-                Images: [
-                    { imageId: 1, link: faker.image.urlLoremFlickr() },
-                    { imageId: 2, link: faker.image.urlLoremFlickr() },
-                ],
+                Images: [],
                 createdAt: generateDate(),
             },
             {
                 postId: cursor + 3,
-                User: User[0],
+                User: User[2],
                 content: `${
                     cursor + 3
                 } Z.com is so marvelous. I'm gonna buy that.`,
