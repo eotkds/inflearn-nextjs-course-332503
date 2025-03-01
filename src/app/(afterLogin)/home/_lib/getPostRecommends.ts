@@ -4,6 +4,7 @@ export async function getPostRecommends({ pageParam }: { pageParam: number }) {
         {
             next: {
                 tags: ["posts", "recommends"],
+                revalidate: 1000 * 60 * 5,
             },
             cache: "no-store",
             // next15 버전 에서 no-store 가 default 값

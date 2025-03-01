@@ -9,7 +9,9 @@ function generateDate() {
         to: Date.now(),
     });
 }
-
+function delay(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
 const User = [
     { id: "elonmusk", nickname: "Elon Musk", image: "/yRsRRjGO.jpg" },
     { id: "zerohch0", nickname: "제로초", image: "/5Udwvqim.jpg" },
@@ -42,16 +44,18 @@ export const handlers = [
             },
         });
     }),
-    http.get(`${baseUrl}/api/postRecommends`, ({ request }) => {
+    http.get(`${baseUrl}/api/postRecommends`, async ({ request }) => {
+        await delay(3000);
         const url = new URL(request.url);
         const cursor = parseInt(url.searchParams.get("cursor") as string) || 0;
+        const randNum = Math.floor(Math.random() * 10000);
         return HttpResponse.json([
             {
                 postId: cursor + 1,
                 User: User[0],
                 content: `${
                     cursor + 1
-                } Z.com is so marvelous. I'm gonna buy that.`,
+                } Z.com is so marvelous. I'm gonna buy that. ${randNum}`,
                 Images: [{ imageId: 1, link: faker.image.urlLoremFlickr() }],
                 createdAt: generateDate(),
             },
@@ -60,7 +64,7 @@ export const handlers = [
                 User: User[1],
                 content: `${
                     cursor + 2
-                } Z.com is so marvelous. I'm gonna buy that.`,
+                } Z.com is so marvelous. I'm gonna buy that. ${randNum}`,
                 Images: [],
                 createdAt: generateDate(),
             },
@@ -69,7 +73,7 @@ export const handlers = [
                 User: User[2],
                 content: `${
                     cursor + 3
-                } Z.com is so marvelous. I'm gonna buy that.`,
+                } Z.com is so marvelous. I'm gonna buy that. ${randNum}`,
                 Images: [],
                 createdAt: generateDate(),
             },
@@ -78,7 +82,7 @@ export const handlers = [
                 User: User[0],
                 content: `${
                     cursor + 4
-                } Z.com is so marvelous. I'm gonna buy that.`,
+                } Z.com is so marvelous. I'm gonna buy that. ${randNum}`,
                 Images: [
                     { imageId: 1, link: faker.image.urlLoremFlickr() },
                     { imageId: 2, link: faker.image.urlLoremFlickr() },
@@ -102,7 +106,8 @@ export const handlers = [
             },
         ]);
     }),
-    http.get(`${baseUrl}/api/followingPosts`, ({ request }) => {
+    http.get(`${baseUrl}/api/followingPosts`, async ({ request }) => {
+        await delay(3000);
         const url = new URL(request.url);
         const cursor = parseInt(url.searchParams.get("cursor") as string) || 0;
         return HttpResponse.json([

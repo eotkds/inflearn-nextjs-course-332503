@@ -1,12 +1,12 @@
 "use client";
 
-import { useContext } from "react"
+import { use } from "react"
 import { TapContext } from "@/app/(afterLogin)/home/_component/TapProvider"
 import PostRecommends from "./PostRecommends"
 import FollowingPosts from "./FollowingPosts"
 
 export default function TabDecider() {
-    const {tab} = useContext(TapContext);
+    const {tab} = use(TapContext); // useContext 대신 use 사용
     if(tab === "rec"){
         return <PostRecommends />
     }
