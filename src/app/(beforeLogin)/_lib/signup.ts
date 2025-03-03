@@ -25,7 +25,7 @@ export default async function signup(
     if (!formData.get("image")) {
         return { message: "no_image" };
     }
-
+    formData.set("nickname", formData.get("name") as string);
     let shouldRedirect = false;
     try {
         const response = await fetch(
@@ -33,11 +33,18 @@ export default async function signup(
             {
                 method: "post",
                 body: formData,
-                credentials: "include",
+                credentials: "include", // TODO : 꼭 입력해야하는 이유는 ?
             }
         );
         if (response.status === 403) {
             return { message: "user_exists" };
+        } else if (response.status === 400) {
+            return {
+                message: (await response.json()).data[0],
+                id: formData.get("id"),
+                nickname: formData.get("nickname"),
+                password: formData.get("password"),
+            };
         }
         shouldRedirect = true;
         signIn("credentials", {

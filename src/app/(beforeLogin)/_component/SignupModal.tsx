@@ -22,11 +22,14 @@ function showMessage(message: string | null | undefined) {
   if (message === 'user_exists') {
     return '이미 사용 중인 아이디입니다.';
   }
-  return '';
+  if (message === 'nickname must be a string') {
+    return '닉네임은 문자열이어야 합니다.';
+  }
+  return message;
 }
 
 export default function SignupModal() {
-  const [status, formAction] = useActionState(signup, {message: null});
+  const [state, formAction] = useActionState(signup, {message: null});
   const {pending} = useFormStatus();
 
 
@@ -43,19 +46,19 @@ export default function SignupModal() {
               <div className={style.inputDiv}>
                 <label className={style.inputLabel} htmlFor="id">아이디</label>
                 <input id="id" name="id" className={style.input} type="text" placeholder=""
-                       required
+                       required defaultValue={state?.id as string} 
                 />
               </div>
               <div className={style.inputDiv}>
                 <label className={style.inputLabel} htmlFor="name">닉네임</label>
                 <input id="name" name="name" className={style.input} type="text" placeholder=""
-                       required
+                       required defaultValue={state?.nickname as string}
                 />
               </div>
               <div className={style.inputDiv}>
                 <label className={style.inputLabel} htmlFor="password">비밀번호</label>
                 <input id="password" name="password" className={style.input} type="password" placeholder=""
-                       required
+                       required defaultValue={state?.password as string}
                 />
               </div>
               <div className={style.inputDiv}>
@@ -67,7 +70,7 @@ export default function SignupModal() {
             </div>
             <div className={style.modalFooter}>
               <button type="submit" className={style.actionButton} disabled={pending}>가입하기</button>
-              <div className={style.errorMessage}>{showMessage(status?.message)}</div>
+              <div className={style.errorMessage}>{showMessage(state?.message)}</div>
             </div>
           </form>
         </div>

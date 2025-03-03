@@ -3,12 +3,15 @@
 import { useState, useRef } from 'react'
 import style from './postForm.module.css';
 import { useSession } from 'next-auth/react';
+import { Session } from "@auth/core/types";
 
+type Props = {
+  me: Session | null;
+};
 
-export default function PostForm() {
+export default function PostForm({me} : Props) {
 
-    const [content, setContent] = useState('')
-    const {data: me} = useSession();
+    const [content, setContent] = useState('');
     const imageRef = useRef<HTMLInputElement>(null)
     const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setContent(e.target.value)
