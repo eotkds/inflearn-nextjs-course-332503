@@ -16,13 +16,21 @@ export default function LoginModal() {
     setMessage('');
     
     try{
-      await signIn('credentials', {
+      const result = await signIn('credentials', {
         username: id,
         password: password,
-        redirect: false,
+        redirect: false, 
+        /* false로 설정한 경우 페이지 이동이 안된다.
+        항상 status 200으로 반환된다.
+        redirect: true로 설정한 경우에는 router.replace('/home') 기능을 사용할 수 없다.
+        */
       });
-      console.log(id, password);
-  
+      console.log(result);
+      if(result?.code === 'no_user'){
+        setMessage('존재하지 않는 아이디입니다.');
+      }else if(result?.code === 'wrong_password'){
+        setMessage('비밀번호가 틀렸습니다.');
+      }
       router.replace('/home');
 
     }catch(e){

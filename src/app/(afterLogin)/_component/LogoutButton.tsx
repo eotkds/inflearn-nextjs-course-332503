@@ -10,7 +10,6 @@ type Props = {
 
 export default function LogoutButton({ me }: Props) {
   const router = useRouter();
-  console.log(me);
     const onLogout = () => {
       signOut({redirect: false})
       .then(() => {
