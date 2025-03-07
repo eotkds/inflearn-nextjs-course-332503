@@ -1,10 +1,10 @@
 export async function getPostRecommends({ pageParam }: { pageParam: number }) {
     const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/postRecommends?cursor=${pageParam}`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/recommends?cursor=${pageParam}`,
         {
             next: {
                 tags: ["posts", "recommends"],
-                revalidate: 1000 * 60 * 5,
+                // revalidate: 1000 * 60 * 5,
             },
             cache: "no-store",
             // next15 버전 에서 no-store 가 default 값

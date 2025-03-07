@@ -2,9 +2,8 @@
 
 import { useState, useRef } from 'react'
 import style from './postForm.module.css';
-import { useSession } from 'next-auth/react';
 import { Session } from "@auth/core/types";
-
+import TextareaAutosize from 'react-textarea-autosize';
 type Props = {
   me: Session | null;
 };
@@ -12,19 +11,62 @@ type Props = {
 export default function PostForm({me} : Props) {
 
     const [content, setContent] = useState('');
-    const imageRef = useRef<HTMLInputElement>(null)
+    const [preview, setPreview] = useState<Array<{ dataUrl: string, file: File } | null>>([]);
+    const imageRef = useRef<HTMLInputElement>(null);
     const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setContent(e.target.value)
     }
 
     const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        const formData = new FormData();
+        formData.append('content', content);
+        preview.forEach((item) => {
+            if(item){
+                formData.append('images', item.file);
+            }
+        });
+        fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts`, {
+            method: 'POST',
+            body: formData,
+            credentials: 'include',
+        })
     }
 
     const onClickButton = () => {
-        console.log('파일 업로드')
+        imageRef.current?.click();
     }
-    
+  
+    const onChangeImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+      e.preventDefault();
+      
+      if(e.target.files){
+        Array.from(e.target.files).forEach((file, index) =>{
+            const reader = new FileReader();
+            reader.onload = () => {
+              setPreview(prevPreview => {
+                const prev = [...prevPreview];
+                prev[index] =  {
+                  dataUrl: reader.result as string,
+                  file,
+                };
+                return prev;
+              });
+            }
+            reader.readAsDataURL(file);
+  
+          })
+        }
+        
+    }
+
+    const onRemoveImage = (index: number) => {
+      setPreview(prevPreview => {
+        const prev = [...prevPreview];
+        prev[index] = null;
+        return prev;
+      });
+    }
     return (
         <form className={style.postForm} onSubmit={onSubmit}>
         <div className={style.postUserSection}>
@@ -33,11 +75,16 @@ export default function PostForm({me} : Props) {
           </div>
         </div>
         <div className={style.postInputSection}>
-          <textarea value={content} onChange={onChange} placeholder="무슨 일이 일어나고 있나요?"/>
+          <TextareaAutosize value={content} onChange={onChange} placeholder="무슨 일이 일어나고 있나요?"/>
+          <div style={{display: 'flex'}}>
+            {preview.map((item, index) => (
+              item && (<div key={index} style={{flex: 1}} onClick={() => onRemoveImage(index)}> <img src={item?.dataUrl} alt="미리보기" style={{width: '100%', maxHeight: 100, objectFit: 'contain'}} /> </div>)
+            ))}
+          </div>
           <div className={style.postButtonSection}>
             <div className={style.footerButtons}>
               <div className={style.footerButtonLeft}>
-                <input type="file" name="imageFiles" multiple hidden ref={imageRef} />
+                <input type="file" name="imageFiles" multiple hidden ref={imageRef} onChange={onChangeImage} />
                 <button className={style.uploadButton} type="button" onClick={onClickButton}>
                   <svg width={24} viewBox="0 0 24 24" aria-hidden="true">
                     <g>
