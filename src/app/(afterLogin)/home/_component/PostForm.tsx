@@ -1,23 +1,30 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, FormEvent } from 'react'
 import style from './postForm.module.css';
 import { Session } from "@auth/core/types";
 import TextareaAutosize from 'react-textarea-autosize';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Post } from '@/model/Post';
+
 type Props = {
   me: Session | null;
 };
 
 export default function PostForm({me} : Props) {
-
+    const queryClient = useQueryClient();
     const [content, setContent] = useState('');
     const [preview, setPreview] = useState<Array<{ dataUrl: string, file: File } | null>>([]);
     const imageRef = useRef<HTMLInputElement>(null);
+
+   
     const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setContent(e.target.value)
     }
 
-    const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+
+    const mutation = useMutation({
+      mutationFn: async(e:FormEvent) => {
         e.preventDefault();
         const formData = new FormData();
         formData.append('content', content);
@@ -26,12 +33,49 @@ export default function PostForm({me} : Props) {
                 formData.append('images', item.file);
             }
         });
-        fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts`, {
+        return await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts`, {
             method: 'POST',
             body: formData,
             credentials: 'include',
-        })
-    }
+        });
+      },
+      onMutate: ()=>{
+        // context 에 이전 데이터를 저장
+      }, 
+      onSuccess: async (response, variables, context) => {
+        const newPost = await response.json();
+        setContent('');
+        setPreview([]);
+        if(queryClient.getQueriesData(['posts', 'recommends'])){
+          queryClient.setQueryData(['posts', 'recommends'], (prevData: {pages:Post[][]}) =>{
+            const shallowCopy = {
+              ...prevData,
+              pages: [...prevData.pages]
+            };
+            shallowCopy.pages[0] = [...shallowCopy.pages[0]];
+            shallowCopy.pages[0].unshift(newPost);
+            return shallowCopy;
+          });
+        }
+        if(queryClient.getQueriesData(['posts', 'followings'])){
+          queryClient.setQueryData(['posts', 'followings'], (prevData: {pages:Post[][]}) =>{
+            const shallowCopy = {
+              ...prevData,
+              pages: [...prevData.pages]
+            };
+            shallowCopy.pages[0] = [...shallowCopy.pages[0]];
+            shallowCopy.pages[0].unshift(newPost);
+            return shallowCopy;
+          });
+        }
+      },
+      onError: (error) => {
+        console.log(error);
+        alert('게시글 작성에 실패했습니다.');
+      },
+    });
+
+
 
     const onClickButton = () => {
         imageRef.current?.click();
@@ -68,7 +112,7 @@ export default function PostForm({me} : Props) {
       });
     }
     return (
-        <form className={style.postForm} onSubmit={onSubmit}>
+        <form className={style.postForm} onSubmit={mutation.mutate}>
         <div className={style.postUserSection}>
           <div className={style.postUserImage}>
             <img src={me?.user?.image} alt={me?.user?.email} />

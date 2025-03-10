@@ -97,6 +97,7 @@
 .postImageSection.oneImage {
     max-height: 510px;
     background-repeat: no-repeat;
+    width: fit-content;
 }
 .postImageSection img {
     border-radius: 16px;
