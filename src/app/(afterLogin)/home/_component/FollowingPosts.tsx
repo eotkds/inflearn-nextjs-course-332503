@@ -12,7 +12,7 @@ export default function FollowingPosts() {
         staleTime: 1000 * 60, //fresh -> stale 으로 변경되는 시간
         gcTime: 1000 * 60 * 3, //stale -> 데이터가 사라지는 시간
     })
-    console.log(data);
+    console.log('following posts', data);
 
     return (
         data?.map((post) => (

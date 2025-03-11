@@ -21,7 +21,7 @@ export default function SearchResult({searchParams}: Props) {
         staleTime: 60 * 1000, // fresh -> stale, 5분이라는 기준
         gcTime: 300 * 1000,
       });
-
+      console.log('search result', data);
     return (
         data?.map((post) => (
             <Post key={post.postId} post={post} />

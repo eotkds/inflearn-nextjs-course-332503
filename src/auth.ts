@@ -32,6 +32,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     throw credentialsSignin;
                 }
                 const user = await authResponse.json();
+                console.log("user", user);
                 return {
                     email: user.id,
                     name: user.nickname,

@@ -11,7 +11,7 @@ export default function FollowRecommendSection() {
         queryKey: ["users", "followRecommends"],
         queryFn: getFollowRecommends,
     });
-
+    
     return (
         data?.map(user => <FollowRecommend key={user.id} user={user} />)
     );

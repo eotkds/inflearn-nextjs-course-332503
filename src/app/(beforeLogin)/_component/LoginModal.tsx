@@ -25,7 +25,7 @@ export default function LoginModal() {
         redirect: true로 설정한 경우에는 router.replace('/home') 기능을 사용할 수 없다.
         */
       });
-      console.log(result);
+      console.log('login result', result);
       if(result?.code === 'no_user'){
         setMessage('존재하지 않는 아이디입니다.');
       }else if(result?.code === 'wrong_password'){
