@@ -1,15 +1,14 @@
 "use client";
 import Main from "@/app/(beforeLogin)/_component/Main";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import RedirectToLogin from "./_component/RedirectToLogin";
 
 export default function LoginPage() {
-  const router = useRouter();
   const { data : session } = useSession();
 
   if(session?.user){
-    router.replace("/home");
+    redirect("/home");
     return null;
   }
   // 250311 - 에러 발생으로 주석 처리, RedirectToLogin 컴포넌트 추가

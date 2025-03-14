@@ -24,7 +24,6 @@ export default function PostRecommends() {
         staleTime: 1000 * 30, //fresh -> stale 으로 변경되는 시간
         gcTime: 1000 * 60 * 1, //stale -> 데이터가 사라지는 시간
     });
-    console.log('post recommends', data);
     const {ref, inView} = useInView({
         threshold: 0, // 요소가 얼마나 보이는지에 대한 비율을 나타냅니다. 0부터 1.0 사이의 값
         delay: 0, // 요소가 보이기 시작하는 시간을 지정합니다. 0은 요소가 보이자마자 즉시 호출됩니다.

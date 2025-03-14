@@ -1,13 +1,112 @@
 'use client'
+import { MouseEventHandler } from 'react';
 import style from './post.module.css';
 import cx from 'classnames';
+import { InfiniteData, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
+import { Post } from '@/model/Post';
 
+export default function ActionButtons({white, post}: {white?: boolean, post: Post}) {
+    const queryClient = useQueryClient();
+    const session = useSession();
 
-export default function ActionButtons({white}: {white?: boolean}) {
+    // onMutate 로직을 재사용 가능한 함수로 분리
+    const updateHeartStatus = (isHeart: boolean) => {
+      const queryCache = queryClient.getQueryCache();
+      const queryKeys = queryCache.getAll().map(cache => cache.queryKey);
+      
+      queryKeys.forEach(queryKey => {
+          if (queryKey[0] === 'posts') {
+              const value: Post | InfiniteData<Post[]> | undefined = queryClient.getQueryData(queryKey);
+              if (value && 'pages' in value) {
+                  // 포스트 리스트
+                  const obj = value.pages.flat().find(p => p.postId === post.postId);
+                  if (obj) {
+                      const pageIndex = value.pages.findIndex(page => page.includes(obj));
+                      const index = value.pages[pageIndex].findIndex(p => p.postId === post.postId);
+                      const shallow = { ...value };
+                      value.pages = { ...value.pages };
+                      value.pages[pageIndex] = [...value.pages[pageIndex]];
+                      
+                      shallow.pages[pageIndex][index] = {
+                          ...shallow.pages[pageIndex][index],
+                          Hearts: isHeart 
+                              ? [{ userId: session.data?.user?.email as string }]
+                              : shallow.pages[pageIndex][index].Hearts.filter(
+                                  heart => heart.userId !== session.data?.user?.email
+                              ),
+                          _count: {
+                              ...shallow.pages[pageIndex][index]._count,
+                              Hearts: shallow.pages[pageIndex][index]._count.Hearts + (isHeart ? 1 : -1),
+                          }
+                      };
+                      queryClient.setQueryData(queryKey, shallow);
+                  }
+              } else if (value) {
+                  // 싱글 포스트
+                  if (value.postId === post.postId) {
+                      const shallow = {
+                          ...value,
+                          Hearts: isHeart
+                              ? [{ userId: session.data?.user?.email as string }]
+                              : value.Hearts.filter(
+                                  heart => heart.userId !== session.data?.user?.email
+                              ),
+                          _count: {
+                              ...value._count,
+                              Hearts: value._count.Hearts + (isHeart ? 1 : -1),
+                          }
+                      };
+                      queryClient.setQueryData(queryKey, shallow);
+                  }
+              }
+          }
+      });
+  };
 
-    const commented = false;
-    const reposted = false;
-    const liked = false;
+    const commented = !!post.Comments?.find(comment=>comment.userId === session.data?.user?.email);
+    const reposted = !!post.Reposts?.find(repost=>repost.userId === session.data?.user?.email);
+    const liked = !!post.Hearts?.find(heart=>heart.userId === session.data?.user?.email);
+
+    const heart = useMutation({
+      mutationFn: ()=>{
+        return fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/${post.postId}/heart`, {
+          method: 'POST',
+          credentials: 'include',
+        });
+      },
+      onMutate: ()=>{
+        updateHeartStatus(true);
+      },
+      onError: ()=>{
+        // 오류 발생시 원래 상태로 되돌리기
+        updateHeartStatus(false);
+      },
+      onSettled: ()=>{
+        // 쿼리 데이터 무효화 - 데이터가 변경되었으니 다시 불러오기 ; 옵션
+        // queryClient.invalidateQueries({queryKey: ['posts']}); 
+      }
+    });
+
+    const unheart = useMutation({
+      mutationFn: ()=>{
+        return fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/${post.postId}/heart`, {
+          method: 'DELETE',
+          credentials: 'include',
+        });
+      },
+      onMutate: ()=>{
+        updateHeartStatus(false);
+      },
+      onError: ()=>{
+        // 오류 발생시 원래 상태로 되돌리기
+        updateHeartStatus(true);
+      },
+      onSettled: ()=>{
+        // 쿼리 데이터 무효화 - 데이터가 변경되었으니 다시 불러오기 ; 옵션
+        // queryClient.invalidateQueries({queryKey: ['posts']}); 
+      }
+    });
 
     const onClickComment = () => {
         console.log('onClickComment');
@@ -17,8 +116,13 @@ export default function ActionButtons({white}: {white?: boolean}) {
         console.log('onClickRepost');
     }
 
-    const onClickHeart = () => {
-        console.log('onClickHeart');
+    const onClickHeart:MouseEventHandler<HTMLButtonElement> = (e) => {
+      e.stopPropagation();
+      if(liked){
+        unheart.mutate();
+      }else{
+        heart.mutate();
+      }
     }
 
     return (
@@ -32,7 +136,7 @@ export default function ActionButtons({white}: {white?: boolean}) {
             </g>
           </svg>
         </button>
-        <div className={style.count}>{1 || ''}</div>
+        <div className={style.count}>{post._count.Comments || ''}</div>
       </div>
       <div className={cx(style.repostButton, reposted && style.reposted, white && style.white)}>
         <button onClick={onClickRepost}>
@@ -43,7 +147,7 @@ export default function ActionButtons({white}: {white?: boolean}) {
             </g>
           </svg>
         </button>
-        <div className={style.count}>{1 || ''}</div>
+        <div className={style.count}>{post._count.Reposts || ''}</div>
       </div>
       <div className={cx([style.heartButton, liked && style.liked], white && style.white)}>
         <button onClick={onClickHeart}>
@@ -54,7 +158,7 @@ export default function ActionButtons({white}: {white?: boolean}) {
             </g>
           </svg>
         </button>
-        <div className={style.count}>{0 || ''}</div>
+        <div className={style.count}>{post._count.Hearts || ''}</div>
       </div>
     </div>
     );
