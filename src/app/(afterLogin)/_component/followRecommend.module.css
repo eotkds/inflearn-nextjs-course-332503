@@ -35,6 +35,7 @@
     width: 76px;
 }
 
+
 .followButtonSection button {
     border: none;
     cursor: pointer;
@@ -46,6 +47,16 @@
     height: 32px;
     border-radius: 16px;
 }
+
+.followButtonSection.following button {
+    background: white;
+    color: black;
+    border: 1px solid grey;
+}
+
 .followButtonSection button:hover {
     background-color: rgb(39,44,48);
+}
+.followButtonSection.following button:hover {
+    background: lightgray;
 }
