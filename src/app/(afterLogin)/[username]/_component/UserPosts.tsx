@@ -7,6 +7,7 @@ import Post from "@/app/(afterLogin)/_component/Post";
 
 
 export default function UserPosts({username}: {username: string}) {
+    return;
     const {data} = useQuery<IPost[], Object, IPost[], [_1: string, _2: string, _3: string]>({
         queryKey: ["posts", "users", username],
         queryFn: getUserPosts,

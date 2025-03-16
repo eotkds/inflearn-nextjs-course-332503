@@ -1,38 +1,20 @@
 "use client";
 
-import style from "./followRecommend.module.css";
 import { User } from "@/model/User";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
+import { updateFollowStatus } from "@/app/(afterLogin)/_lib/updateFollowStatus";
 import cx from "classnames";
+import Link from "next/link";
+import style from "./followRecommend.module.css";
 type Prop = { user : User}
 
 export default function FollowRecommend({user}: Prop) {
     const {data: session} = useSession();
-    console.log('user', user);
     const followed = !!user.Followers?.find(follower => follower.id === session?.user?.email);
     const queryClient = useQueryClient();
 
-     // onMutate 로직을 하나의 함수로 통합
-     const updateFollowStatus = (userId: string, isFollow: boolean) => {
-        const value: User[]|undefined = queryClient.getQueryData(["users", "followRecommends"]);
-        
-        if (value) {
-            const index = value.findIndex(user => user.id === userId);
-            const shallow = [...value];
-            shallow[index] = {
-                ...shallow[index],
-                Followers: isFollow 
-                    ? [...shallow[index].Followers, {id: session?.user?.email as string}]
-                    : shallow[index].Followers.filter(follower => follower.id !== session?.user?.email),
-                _count: {
-                    ...shallow[index]._count,
-                    Followers: shallow[index]._count.Followers + (isFollow ? 1 : -1),
-                }
-            }
-            queryClient.setQueryData(["users", "followRecommends"], shallow);
-        }
-    };
+ 
     const follow = useMutation({
         mutationFn: (userId: string)=>{
             return fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/${userId}/follow`,{
@@ -41,12 +23,13 @@ export default function FollowRecommend({user}: Prop) {
             })
         },
         onMutate: (userId: string)=>{
-            updateFollowStatus(userId, true);
+            updateFollowStatus({userId, isFollow: true, queryClient, sessionUserId: session?.user?.email as string});
         },
         onSuccess: ()=>{},
-        onError: (userId: string)=>{
+        onError: (error: Error, userId: string)=>{
+            console.log(error);
             // 실패시 반대 동작 실행
-            updateFollowStatus(userId, false);
+            updateFollowStatus({userId, isFollow: false, queryClient, sessionUserId: session?.user?.email as string});
         },
     });
     const unfollow = useMutation({
@@ -57,16 +40,18 @@ export default function FollowRecommend({user}: Prop) {
             })
         },
         onMutate: (userId: string)=>{
-            updateFollowStatus(userId, false);
+            updateFollowStatus({userId, isFollow: false, queryClient, sessionUserId: session?.user?.email as string});
         },
         onSuccess: ()=>{},
-        onError: (userId: string)=>{
+        onError: (error: Error, userId: string)=>{
             // 실패시 반대 동작 실행
-            updateFollowStatus(userId, true);
+            updateFollowStatus({userId, isFollow: true, queryClient, sessionUserId: session?.user?.email as string});
         },
     });
 
-    const onFollow = () => {
+    const onFollow = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        e.stopPropagation();
         if(followed) {
             unfollow.mutate(user.id);
         } else {
@@ -74,7 +59,7 @@ export default function FollowRecommend({user}: Prop) {
         }
     };
     return (
-        <div className={style.container}>
+        <Link href={`/${user.id}`} className={style.container}>
             <div className={style.userLogoSection}>
                 <div className={style.userLogo}>
                 <img src={user.image} alt={user.id} />
@@ -84,9 +69,9 @@ export default function FollowRecommend({user}: Prop) {
                 <div className={style.title}>{user.nickname}</div>
                 <div className={style.count}>@{user.id}</div>
             </div>
-            <div className={cx(style.followButtonSection, followed && style.following)}>
+            <div className={cx(style.followButtonSection, followed && style.followed)}>
                 <button onClick={onFollow}>{followed ? '팔로잉' : '팔로우'}</button>
             </div>
-        </div>
+        </Link>
     )
 }

@@ -12,6 +12,7 @@ export const getUser: QueryFunction<User, [_1: string, _2: string]> = async ({
             next: {
                 tags: ["users", username],
             },
+            credentials: "include",
             cache: "no-store",
             // next15 버전 에서 no-store 가 default 값
             // force-cache 가 하는 경우에는 revalidate 가 있어야 함
