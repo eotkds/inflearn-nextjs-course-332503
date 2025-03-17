@@ -1,20 +1,44 @@
 import BackButton from "@/app/(afterLogin)/_component/BackButton";
-import style from "./singlePost.module.css";
-import CommentForm from "./_component/CommentForm";
-import SinglePost from "./_component/SinglePost";
-import Comments from "./_component/Comments";
 import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
 import { getSinglePost } from "./_lib/getSinglePost";
 import { getComments } from "./_lib/getComments";
+import { getUserServer } from "@/app/(afterLogin)/[username]/_lib/getUserServer";
+import { getSinglePostServer } from "./_lib/getSinglePostServer";
+import { Metadata, ResolvingMetadata } from "next";
+import SinglePost from "./_component/SinglePost";
+import CommentForm from "./_component/CommentForm";
+import Comments from "./_component/Comments";
 
-export default async function SinglePostPage({params}: {params: Promise<{id: string}>}) {
+import style from "./singlePost.module.css";
+import { User } from "@/model/User";
+import { Post } from "@/model/Post";
+
+type Props = {
+  params: Promise<{id:string, username: string}>;
+}
+
+export async function generateMetadata({params}: Props, parent: ResolvingMetadata) :Promise<Metadata> {
+  const{id, username} = await params;
+  const [user, post] : [User, Post] = await Promise.all([
+    getUserServer({queryKey: ["users", username]}),
+    getSinglePostServer({queryKey: ["posts", id]})
+  ])
+
+  return {
+    title: `D에서 ${user.nickname} 님 : ${post.content}`,
+    description: `${post.content}`,
+  }
+}
+
+
+export default async function SinglePostPage({params}: Props) {
     const { id } = await params;
   
     const queryClient = new QueryClient();
 
     await queryClient.prefetchQuery({
       queryKey: ["posts", id],
-      queryFn: getSinglePost,
+      queryFn: getSinglePostServer,
     });
 
     await queryClient.prefetchQuery({

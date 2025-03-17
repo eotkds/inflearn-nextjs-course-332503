@@ -3,13 +3,27 @@ import { getUserServer } from "./_lib/getUserServer";
 import { auth } from "@/auth";
 import UserPosts from "./_component/UserPosts";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
-
-
 import { getUserPosts } from "./_lib/getUserPosts";
 import UserInfo from "./_component/UserInfo";
 import style from "./profile.module.css";
+import { ResolvingMetadata } from "next";
+import { Metadata } from "next";
+import { User } from "@/model/User";
+
+
 type Props = {
   params : Promise<{username: string}>;
+}
+
+
+export async function generateMetadata({params}: Props, parent: ResolvingMetadata) :Promise<Metadata> {
+  const{username} = await params;
+  const user:User = await getUserServer({queryKey: ["users", username]});
+
+  return {
+    title: `${user.nickname} (${user.id}) / D`,
+    description: `${user.nickname} (${user.id}) 프로필 페이지입니다.`,
+  }
 }
 
 
