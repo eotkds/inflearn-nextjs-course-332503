@@ -4,20 +4,20 @@ import BackButton from "@/app/(beforeLogin)/_component/BackButton";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getUser } from "../_lib/getUser";
 import { User } from "@/model/User";
-import { useSession } from "next-auth/react";
+
 import cx from "classnames";
 import style from "@/app/(afterLogin)/[username]/profile.module.css";
 import { updateFollowStatus } from "../../_lib/updateFollowStatus";
+import { Session } from "next-auth";
 
 
-export default function UserInfo({username}: {username: string}) {
+export default function UserInfo({username, session}: {username: string, session: Session | null}) {
     const {data: user, error} = useQuery<User, Object, User, [_1: string, _2: string]>({
         queryKey: ["users", username],
         queryFn: getUser,
         staleTime: 1000 * 60, //fresh -> stale 으로 변경되는 시간
         gcTime: 1000 * 60 * 3, //stale -> 데이터가 사라지는 시간
     });
-    const {data: session} = useSession();
     const queryClient = useQueryClient();
 
     const follow = useMutation({
@@ -84,7 +84,7 @@ if(error){
 if (!user){
     return null;
 } 
-console.log(user);
+
 const followed = !!user.Followers?.some((follower) => follower.id === session?.user?.email);
 
 const onFollow = () => {
