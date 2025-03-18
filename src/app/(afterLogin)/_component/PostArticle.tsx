@@ -1,21 +1,12 @@
 "use client";
 
+import { Post } from "@/model/Post";
 import style from "./post.module.css";
 import { useRouter } from "next/navigation";
 
 type Props = {
     children: React.ReactNode,
-    post: {
-        postId: number,
-        content: string,
-        createdAt: Date,
-        Images: any[], // FIXME: 타입 정의
-        User: {
-            id: string,
-            nickname: string,
-            image: string,
-        }
-    }
+    post: Post
 }
 
 export default function PostArticle({ children, post }: Props) {

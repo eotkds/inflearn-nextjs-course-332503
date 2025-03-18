@@ -108,12 +108,26 @@ export default function ActionButtons({white, post}: {white?: boolean, post: Pos
       }
     });
 
-    const onClickComment = () => {
-        console.log('onClickComment');
+    const onClickComment = (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation();
+      const formData = new FormData();
+      formData.append('content', '답글 테스트 입니다.');
+      fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/${post.postId}/comments`, {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      });
     }
 
-    const onClickRepost = () => {
-        console.log('onClickRepost');
+    const onClickRepost = (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation();
+      const formData = new FormData();
+      formData.append('content', '재게시 테스트 입니다.');
+      fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/${post.postId}/reposts`, {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      });
     }
 
     const onClickHeart:MouseEventHandler<HTMLButtonElement> = (e) => {
