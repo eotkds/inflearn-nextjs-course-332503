@@ -5,10 +5,14 @@ import cx from 'classnames';
 import { InfiniteData, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { Post } from '@/model/Post';
+import { useRouter } from 'next/navigation';
+import { useModalStore } from '@/store/modal';
 
 export default function ActionButtons({white, post}: {white?: boolean, post: Post}) {
     const queryClient = useQueryClient();
     const session = useSession();
+    const router = useRouter();
+    const modalStore = useModalStore();
 
     // onMutate 로직을 재사용 가능한 함수로 분리
     const updateHeartStatus = (isHeart: boolean) => {
@@ -63,10 +67,71 @@ export default function ActionButtons({white, post}: {white?: boolean, post: Pos
           }
       });
   };
+  // updateHeartStatus 함수 복사하여 repost 로직에 사용
+  const updateRepostStatus = (isRepost: boolean) => {
+    const queryCache = queryClient.getQueryCache();
+    const queryKeys = queryCache.getAll().map(cache => cache.queryKey);
+    
+    queryKeys.forEach(queryKey => {
+      if (queryKey[0] === 'posts') {
+          const value: Post | InfiniteData<Post[]> | undefined = queryClient.getQueryData(queryKey);
+          if (value && 'pages' in value) {
+              // 포스트 리스트
+              const obj = value.pages.flat().find(p => p.postId === post.postId);
+              const repost = value.pages.flat().find((v) => v.Original?.postId === post.postId && v.User.id === session.data?.user?.email);
+              if (obj) {
+                const pageIndex = value.pages.findIndex(page => page.includes(obj));
+                const index = value.pages[pageIndex].findIndex(p => p.postId === post.postId);
+                const shallow = { ...value };
+                value.pages = { ...value.pages };
+                value.pages[pageIndex] = [...value.pages[pageIndex]];
+                
+                shallow.pages[pageIndex][index] = {
+                    ...shallow.pages[pageIndex][index],
+                    Reposts: isRepost 
+                        ? [{ userId: session.data?.user?.email as string }]
+                        : shallow.pages[pageIndex][index].Reposts.filter(
+                            repost => repost.userId !== session.data?.user?.email
+                        ),
+                    _count: {
+                        ...shallow.pages[pageIndex][index]._count,
+                        Reposts: shallow.pages[pageIndex][index]._count.Reposts + (isRepost ? 1 : -1),
+                    }
+                };
+                if(isRepost){
+                  shallow.pages[0].unshift(shallow.pages[pageIndex][index]);
+                }else{
+                  shallow.pages = shallow.pages.map(page => {
+                    return page.filter(p => p.postId !== repost?.postId);
+                  })
+                }
+                queryClient.setQueryData(queryKey, shallow);
+              }
+          } else if (value) {
+              // 싱글 포스트
+              if (value.postId === post.postId) {
+                  const shallow = {
+                      ...value,
+                      Reposts: isRepost
+                          ? [{ userId: session.data?.user?.email as string }]
+                          : value.Reposts.filter(
+                              repost => repost.userId !== session.data?.user?.email
+                          ),
+                      _count: {
+                          ...value._count,
+                          Reposts: value._count.Reposts + (isRepost ? 1 : -1),
+                      }
+                  };
+                  queryClient.setQueryData(queryKey, shallow);
+              }
+          }
+        }
+    });
+  };
 
-    const commented = !!post.Comments?.find(comment=>comment.userId === session.data?.user?.email);
     const reposted = !!post.Reposts?.find(repost=>repost.userId === session.data?.user?.email);
     const liked = !!post.Hearts?.find(heart=>heart.userId === session.data?.user?.email);
+
 
     const heart = useMutation({
       mutationFn: ()=>{
@@ -108,26 +173,51 @@ export default function ActionButtons({white, post}: {white?: boolean, post: Pos
       }
     });
 
+    // TODO : 재게시 할 경우 재게 표시가 나오지 않음; Original 가 null
+    const repost = useMutation({
+      mutationFn: ()=>{
+        return fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/${post.postId}/reposts`, {
+          method: 'POST',
+          credentials: 'include',
+        });
+      },
+      onSuccess: ()=> {
+        updateRepostStatus(true);
+      },
+      onError: ()=>{
+        updateRepostStatus(false);
+      }
+    });
+    const deleteRepost = useMutation({
+      mutationFn: ()=>{
+        return fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/${post.postId}/reposts`, {
+          method: 'DELETE',
+          credentials: 'include',
+        });
+      },
+      onSuccess: ()=> {
+        updateRepostStatus(false);
+      },
+      onError: ()=>{
+        updateRepostStatus(true);
+      }
+    });
+
+
     const onClickComment = (e: React.MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation();
-      const formData = new FormData();
-      formData.append('content', '답글 테스트 입니다.');
-      fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/${post.postId}/comments`, {
-        method: 'POST',
-        credentials: 'include',
-        body: formData,
-      });
+      modalStore.setMode('comment');
+      modalStore.setData(post);
+      router.push('/compose/tweet');
     }
 
     const onClickRepost = (e: React.MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation();
-      const formData = new FormData();
-      formData.append('content', '재게시 테스트 입니다.');
-      fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/${post.postId}/reposts`, {
-        method: 'POST',
-        credentials: 'include',
-        body: formData,
-      });
+      if(reposted){
+        deleteRepost.mutate();
+      }else{
+        repost.mutate();
+      }
     }
 
     const onClickHeart:MouseEventHandler<HTMLButtonElement> = (e) => {
@@ -141,7 +231,7 @@ export default function ActionButtons({white, post}: {white?: boolean, post: Pos
 
     return (
         <div className={style.actionButtons}>
-      <div className={cx(style.commentButton, { [style.commented]: commented }, white && style.white)}>
+      <div className={cx(style.commentButton, white && style.white)}>
         <button onClick={onClickComment}>
           <svg width={24} viewBox="0 0 24 24" aria-hidden="true">
             <g>
@@ -150,7 +240,7 @@ export default function ActionButtons({white, post}: {white?: boolean, post: Pos
             </g>
           </svg>
         </button>
-        <div className={style.count}>{post._count.Comments || ''}</div>
+        <div className={style.count}>{post._count?.Comments || ''}</div>
       </div>
       <div className={cx(style.repostButton, reposted && style.reposted, white && style.white)}>
         <button onClick={onClickRepost}>
@@ -161,7 +251,7 @@ export default function ActionButtons({white, post}: {white?: boolean, post: Pos
             </g>
           </svg>
         </button>
-        <div className={style.count}>{post._count.Reposts || ''}</div>
+        <div className={style.count}>{post._count?.Reposts || ''}</div>
       </div>
       <div className={cx([style.heartButton, liked && style.liked], white && style.white)}>
         <button onClick={onClickHeart}>
@@ -172,7 +262,7 @@ export default function ActionButtons({white, post}: {white?: boolean, post: Pos
             </g>
           </svg>
         </button>
-        <div className={style.count}>{post._count.Hearts || ''}</div>
+        <div className={style.count}>{post._count?.Hearts || ''}</div>
       </div>
     </div>
     );

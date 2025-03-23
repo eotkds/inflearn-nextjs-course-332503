@@ -1,31 +1,219 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import style from "./modal.module.css";
-import { useState, useRef } from "react";
+import { useState, useRef, FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import TextareaAutosize from "react-textarea-autosize";
+import { InfiniteData, useMutation, useQueryClient } from "@tanstack/react-query";
+import style from "./modal.module.css";
+import { Post } from "@/model/Post";
+import { useModalStore } from "@/store/modal";
+import Link from "next/link";
+
 export default function Page() {
   const router = useRouter();
-    const [content, setContent] = useState("");
-    const {data: me} = useSession();
+  const [content, setContent] = useState("");
+  const [preview, setPreview] = useState<Array<{ dataUrl: string, file: File } | null>>([]);
+  const {data: me} = useSession();
+  const queryClient = useQueryClient();
+  const modalStore = useModalStore();
+  const parent = modalStore.data;
 
   const imageRef = useRef<HTMLInputElement>(null);
   const onClickClose = () => {
     router.back();
   };
 
-  const onSubmit = () => {
-    console.log("submit");  
-  };
 
-  const onChangeContent = () => {
-    console.log("change content");
-  };
+
+
+  const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setContent(e.target.value)
+}
+
+const comment = useMutation({
+  mutationFn: async(e:FormEvent) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append('content', content);
+    preview.forEach((item) => {
+        if(item){
+            formData.append('images', item.file);
+        }
+    });
+    return await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/${parent?.postId}/comments`, {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+    });
+  },
+  async onSuccess(response, variable) {
+    const newPost = await response.json();
+    setContent('');
+    setPreview([]);
+    const queryCache = queryClient.getQueryCache()
+    const queryKeys = queryCache.getAll().map(cache => cache.queryKey)
+    console.log('queryKeys', queryKeys);
+    queryKeys.forEach((queryKey) => {
+      if (queryKey[0] === 'posts') {
+        console.log(queryKey[0]);
+        const value: Post | InfiniteData<Post[]> | undefined = queryClient.getQueryData(queryKey);
+        if (value && 'pages' in value) {
+          console.log('array', value);
+          const obj = value.pages.flat().find((v) => v.postId === parent?.postId);
+          if (obj) { // 존재는 하는지
+            const pageIndex = value.pages.findIndex((page) => page.includes(obj));
+            const index = value.pages[pageIndex].findIndex((v) => v.postId === parent?.postId);
+            console.log('found index', index);
+            const shallow = { ...value };
+            value.pages = {...value.pages }
+            value.pages[pageIndex] = [...value.pages[pageIndex]];
+            shallow.pages[pageIndex][index] = {
+              ...shallow.pages[pageIndex][index],
+              Comments: [{ userId: me?.user?.email as string }],
+              _count: {
+                ...shallow.pages[pageIndex][index]._count,
+                Comments: shallow.pages[pageIndex][index]._count.Comments + 1,
+              }
+            }
+            shallow.pages[0].unshift(newPost); // 새 답글 추가
+            queryClient.setQueryData(queryKey, shallow);
+          }
+        } else if (value) {
+          // 싱글 포스트인 경우
+          if (value.postId === parent?.postId) {
+            const shallow = {
+              ...value,
+              Comments: [{ userId: me?.user?.email as string }],
+              _count: {
+                ...value._count,
+                Comments: value._count.Comments + 1,
+              }
+            }
+            queryClient.setQueryData(queryKey, shallow);
+          }
+        }
+      }
+    });
+    await queryClient.invalidateQueries({
+      queryKey: ['trends']
+    });
+  },
+  onError: (error) => {
+    console.log(error);
+    alert('게시글 작성에 실패했습니다.');
+  },
+  onSettled: () => {
+    modalStore.reset();
+    router.back();
+  }
+});
+
+const mutation = useMutation({
+  mutationFn: async(e:FormEvent) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append('content', content);
+    preview.forEach((item) => {
+        if(item){
+            formData.append('images', item.file);
+        }
+    });
+    return await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts`, {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+    });
+  },
+  onMutate: ()=>{
+    // context 에 이전 데이터를 저장
+  }, 
+  async onSuccess(response, variable) {
+    const newPost = await response.json();
+    setContent('');
+    setPreview([]);
+    const queryCache = queryClient.getQueryCache()
+    const queryKeys = queryCache.getAll().map(cache => cache.queryKey)
+    console.log('queryKeys', queryKeys);
+    queryKeys.forEach((queryKey) => {
+      if (queryKey[0] === 'posts') {
+        console.log(queryKey[0]);
+        const value: Post | InfiniteData<Post[]> | undefined = queryClient.getQueryData(queryKey);
+        if (value && 'pages' in value) {
+          console.log('array', value);
+          const obj = value.pages.flat().find((v) => v.postId === parent?.postId);
+          if (obj) { // 존재는 하는지
+            const pageIndex = value.pages.findIndex((page) => page.includes(obj));
+            const index = value.pages[pageIndex].findIndex((v) => v.postId === parent?.postId);
+            console.log('found index', index);
+            const shallow = {
+              ...value,
+              pages: [...value.pages],
+            };
+            shallow.pages[0] = [...shallow.pages[0]];
+            shallow.pages[0].unshift(newPost); // 새 게시글 추가
+            queryClient.setQueryData(queryKey, shallow);
+          }
+        }
+      }
+    });
+    await queryClient.invalidateQueries({
+      queryKey: ['trends']
+    });
+  },
+  onError: (error) => {
+    console.log(error);
+    alert('게시글 작성에 실패했습니다.');
+  },
+  onSettled: () => {
+    router.back();
+  }
+});
+
+
 
   const onClickButton = () => {
-    console.log("click button");
-  };
+      imageRef.current?.click();
+  }
 
+  const onChangeImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    
+    if(e.target.files){
+      Array.from(e.target.files).forEach((file, index) =>{
+          const reader = new FileReader();
+          reader.onload = () => {
+            setPreview(prevPreview => {
+              const prev = [...prevPreview];
+              prev[index] =  {
+                dataUrl: reader.result as string,
+                file,
+              };
+              return prev;
+            });
+          }
+          reader.readAsDataURL(file);
+
+        })
+      }
+      
+  }
+
+  const onRemoveImage = (index: number) => {
+    setPreview(prevPreview => {
+      const prev = [...prevPreview];
+      prev[index] = null;
+      return prev;
+    });
+  }
+
+  const onSubmit = (e:FormEvent) => {
+    if(modalStore.mode === 'new'){
+      mutation.mutate(e);
+    }else{
+      comment.mutate(e);
+    }
+  }
 
   return (
     <div className={style.modalBackground}>
@@ -40,6 +228,22 @@ export default function Page() {
           </svg>
         </button>
         <form className={style.modalForm} onSubmit={onSubmit}>
+          {modalStore.mode === 'comment' && parent && (
+              <div className={style.modalOriginal}>
+                <div className={style.postUserSection}>
+                  <div className={style.postUserImage}>
+                    <img src={parent.User.image} alt={parent.User.id}/>
+                  </div>
+                </div>
+                <div>
+                  {parent.content}
+                  <div>
+                    <Link href={`/${parent.User.id}`} style={{color: 'rgb(29, 155, 240)'}}>@{parent.User.id}</Link> 님에게
+                    보내는 답글
+                  </div>
+                </div>
+              </div>
+            )}
           <div className={style.modalBody}>
             <div className={style.postUserSection}>
               <div className={style.postUserImage}>
@@ -47,17 +251,22 @@ export default function Page() {
               </div>
             </div>
             <div className={style.inputDiv}>
-              <textarea className={style.input} placeholder="무슨 일이 일어나고 있나요?"
+              <TextareaAutosize className={style.input} placeholder={modalStore.mode === 'comment' ? "답글 게시하기" : "무슨 일이 일어나고 있나요?"}
                      value={content}
-                     onChange={onChangeContent}
+                     onChange={onChange}
               />
+            <div style={{display: 'flex'}}>
+              {preview.map((item, index) => (
+                item && (<div key={index} style={{flex: 1}} onClick={() => onRemoveImage(index)}> <img src={item?.dataUrl} alt="미리보기" style={{width: '100%', maxHeight: 100, objectFit: 'contain'}} /> </div>)
+              ))}
+            </div>
             </div>
           </div>
           <div className={style.modalFooter}>
             <div className={style.modalDivider}/>
             <div className={style.footerButtons}>
               <div className={style.footerButtonLeft}>
-                <input type="file" name="imageFiles" multiple hidden ref={imageRef} />
+                <input type="file" name="imageFiles" multiple hidden ref={imageRef} onChange={onChangeImage} />
                 <button className={style.uploadButton} type="button" onClick={onClickButton}>
                   <svg width={24} viewBox="0 0 24 24" aria-hidden="true">
                     <g>

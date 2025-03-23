@@ -46,7 +46,7 @@ export default function PostForm({me} : Props) {
         const newPost = await response.json();
         setContent('');
         setPreview([]);
-        if(queryClient.getQueriesData(['posts', 'recommends'])){
+        if(queryClient.getQueryData(['posts', 'recommends'])){
           queryClient.setQueryData(['posts', 'recommends'], (prevData: {pages:Post[][]}) =>{
             const shallowCopy = {
               ...prevData,
@@ -57,7 +57,7 @@ export default function PostForm({me} : Props) {
             return shallowCopy;
           });
         }
-        if(queryClient.getQueriesData(['posts', 'followings'])){
+        if(queryClient.getQueryData(['posts', 'followings'])){
           queryClient.setQueryData(['posts', 'followings'], (prevData: {pages:Post[][]}) =>{
             const shallowCopy = {
               ...prevData,
