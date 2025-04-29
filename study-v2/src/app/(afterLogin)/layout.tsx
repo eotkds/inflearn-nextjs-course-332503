@@ -5,6 +5,8 @@ import Image from "next/image";
 import DLogo from '@/../public/dlogo.jpeg';
 import NavMenu from "./_component/NavMenu";
 import LogoutButton from "./_component/LogoutButton";
+import FollowRecommend from "./_component/FollowRecommend";
+import TrendSection from "./_component/TrendSection";
 
 
 export default function AfterLoginLayout({ children }: { children: ReactNode }) {
@@ -43,8 +45,12 @@ export default function AfterLoginLayout({ children }: { children: ReactNode }) 
                 <input type="search" />
               </form>
             </div>
+            <TrendSection />
             <div className={style.followRecommend}>
               <h3>팔로우 추천</h3>
+              <FollowRecommend />
+              <FollowRecommend />
+              <FollowRecommend />
             </div>
           </section>
         </div>
