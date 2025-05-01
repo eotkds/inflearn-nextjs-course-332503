@@ -8,7 +8,6 @@ export const TabContext = createContext({
 
 export default function TabProvider({children}: {children: React.ReactNode}) {
     const [tab, setTab] = useState('rec');
-    console.log('TabProvider', tab);
     return (
         <TabContext.Provider value={{tab, setTab}}>
             {children}
