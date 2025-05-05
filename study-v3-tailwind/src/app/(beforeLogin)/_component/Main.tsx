@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export default function Main() {
   return (
-    <div className="flex flex-row bg-(--color-background-end-rgb) w-[100dvw] h-[100dvh]">
+    <>
       <div className="flex flex-1 justify-center items-center">
         <Image src={dLogo} alt="logo" className="lg:w-[450px] lg:h-[550px]" />
       </div>
@@ -15,6 +15,6 @@ export default function Main() {
         <h3 className="font-bold text-[17px] mb-[20px] mt-[40px]">이미 트위터에 가입하셨나요?</h3>
         <Link href="/login" className="w-[300px] h-[40px] rounded-[20px] px-[16px] text-[15px] text-[rgb(29,155,240)] border-1 border-solid border-[rgb(207,217,222)] flex justify-center items-center hover:bg-[rgba(29,155,240,0.1)]">로그인</Link>
       </div>
-    </div>
+    </>
   )
 }
