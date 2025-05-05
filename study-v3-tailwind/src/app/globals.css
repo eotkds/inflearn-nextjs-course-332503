@@ -125,35 +125,10 @@
   * {
     @apply border-border outline-ring/50;
   }
+  body, html {
+    @apply max-w-[100vw] overflow-x-hidden;
+  }
   body {
     @apply bg-background text-foreground;
   }
-}
-
-
-.commonInputDiv{
-  @apply flex flex-col h-[56px] relative my-[12px];
-}
-
-
-.commonInputDiv input {
-  @apply w-full border-none text-[17px] mt-[16px] p-[12px_8px_8px] outline-none;
-}
-
-.inputLabel {
-  width: 100%;
-  display: inline-block;
-  position: absolute;
-  top: 0;
-  border: 1px solid rgb(207, 217, 222);
-  border-radius: 4px;
-  font-size: 13px;
-  height: 56px;
-  padding: 8px 8px 0;
-  color: rgb(83, 100, 113);
-}
-
-
-.inputLabel:focus-within {
-  @apply text-red-500;
 }
