@@ -8,9 +8,10 @@ import TrendSection from "./_component/TrendSection";
 import FollowRecommend from "./_component/FollowRecommend";
 
 export default function AfterLoginLayout({
-  children,
+  children, modal,
 }: {
   children: React.ReactNode;
+  modal: React.ReactNode;
 }) {
   return (
     <div className="flex items-stretch bg-white">
@@ -59,6 +60,7 @@ export default function AfterLoginLayout({
           </section>
         </div>
       </div>
+      {modal}
     </div>
   );
 }
