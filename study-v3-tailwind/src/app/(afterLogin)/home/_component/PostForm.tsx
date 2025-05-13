@@ -28,7 +28,7 @@ export default function PostForm() {
 
 
   return (
-    <form className="mt-[101px] flex p-[16px_16px_8px] border-[rgb(239,243,244)] border-b border-b-solid" onSubmit={onSubmit}>
+    <form className="mt-[101px] flex p-[16px_16px_8px] border-[rgb(239,243,244)] border-b" onSubmit={onSubmit}>
       <div className="mr-[12px] w-[40px]">
         <div className="w-[40px] h-[40px] rounded-[20px]">
           <img src={me.image} alt={me.id} className="w-[40px] h-[40px] rounded-[20px]" />

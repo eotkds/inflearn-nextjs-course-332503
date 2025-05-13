@@ -1,3 +1,5 @@
+"use client";
+
 import dayjs from "dayjs";
 import relativeTime from 'dayjs/plugin/relativeTime'
 import 'dayjs/locale/ko'; // 한국어 로케일 추가
@@ -5,6 +7,7 @@ import 'dayjs/locale/ko'; // 한국어 로케일 추가
 
 import Link from "next/link";
 import ActionButtons from "./ActionButtons";
+import PostArticle from "./PostArticle";
 
 export default function Post() {
   const target = {
@@ -13,6 +16,7 @@ export default function Post() {
       nickname: 'Elon Musk',
       image: '/yRsRRjGO.jpg',
     },
+    postId: 1,
     content: '클론코딩 라이브로 하니 너무 힘들어요 ㅠㅠ',
     createdAt: new Date(),
     Images: [],
@@ -22,7 +26,7 @@ export default function Post() {
   dayjs.locale('ko');
 
   return (
-    <article className="flex flex-col py-[12px] px-[16px] border-[rgb(239,243,244)] border-b border-b-solid transition-[background-color,box-shadow] duration-200 cursor-pointer hover:bg-[rgba(0,0,0,0.03)]">
+    <PostArticle post={target}>
       <div className="flex flex-row">
         <div className="mr-[12px] w-[40px]">
           <Link href={`/${target.User.id}`} className="relative inline-block w-[40px] h-[40px] rounded-[20px]">
@@ -49,6 +53,6 @@ export default function Post() {
           <ActionButtons />
         </div>
       </div>
-    </article>
+    </PostArticle>
   )
 }
