@@ -1,15 +1,13 @@
-"use client";
-
 import dayjs from "dayjs";
 import relativeTime from 'dayjs/plugin/relativeTime'
 import 'dayjs/locale/ko'; // 한국어 로케일 추가
-
+import { fakerKO as faker } from '@faker-js/faker';
 
 import Link from "next/link";
 import ActionButtons from "./ActionButtons";
 import PostArticle from "./PostArticle";
 
-export default function Post() {
+export default function Post({noImage}: {noImage?: boolean}) {
   const target = {
     User: {
       id: 'elonmusk',
@@ -17,11 +15,13 @@ export default function Post() {
       image: '/yRsRRjGO.jpg',
     },
     postId: 1,
-    content: '클론코딩 라이브로 하니 너무 힘들어요 ㅠㅠ',
+    content: faker.lorem.lines(),
     createdAt: new Date(),
-    Images: [],
+    Images: [] as any[],
   }
-
+  if (Math.random() > 0.5 && !noImage){
+    target.Images.push({imageId: 1, link: faker.image.urlPicsumPhotos()})
+  } 
   dayjs.extend(relativeTime);
   dayjs.locale('ko');
 
@@ -47,8 +47,12 @@ export default function Post() {
             <span className="text-[rgb(83,100,113)] hover:underline">{dayjs(target.createdAt).fromNow(true)}</span>
           </div>
           <div>{target.content}</div>
-          <div className="">
-
+          <div className="inline-block mt-[12px] w-full rounded-[16px]">
+            {target.Images && target.Images.length > 0 && (
+              <Link href={`/${target.User.id}/status/${target.postId}/photo/${target.Images[0].imageId}`}>
+                <img src={target.Images[0].link} alt="" className=""/>
+              </Link>
+            )}
           </div>
           <ActionButtons />
         </div>

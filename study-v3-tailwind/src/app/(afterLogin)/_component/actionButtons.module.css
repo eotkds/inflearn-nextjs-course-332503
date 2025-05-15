@@ -37,11 +37,11 @@
     background-color: rgba(29, 155, 240, 0.1);
 }
 
-.commentButton.commented svg, .commentButton:hover svg {
+.commentButton.commented svg, .commentButton:hover svg, .commentButton.white:hover svg {
     fill: rgb(29, 155, 240)
 }
 
-.commentButton.commented .count, .commentButton:hover .count {
+.commentButton.commented .count, .commentButton:hover .count, .commentButton.white:hover .count {
     color: rgb(29, 155, 240);
 }
 
@@ -53,11 +53,11 @@
     background-color: rgba(0, 186, 124, 0.1);
 }
 
-.repostButton.reposted svg, .repostButton:hover svg {
+.repostButton.reposted svg, .repostButton:hover svg, .repostButton.white:hover svg {
     fill: rgb(11, 175, 123)
 }
 
-.repostButton.reposted .count, .repostButton:hover .count {
+.repostButton.reposted .count, .repostButton:hover .count, .repostButton.white:hover .count {
     color: rgb(11, 175, 123)
 }
 
@@ -75,4 +75,13 @@
 
 .heartButton.liked .count, .heartButton:hover .count {
     color: rgb(228, 34, 126);
+}
+
+.commentButton.white svg, .repostButton.white svg, .heartButton.white svg {
+    fill: #ffffff;
+    color: #ffffff;
+}
+
+.commentButton.white .count, .repostButton.white .count, .heartButton.white .count {
+    color: #ffffff;
 }

@@ -1,6 +1,6 @@
 import BackButton from "@/app/(afterLogin)/_component/BackButton";
 import Post from "@/app/(afterLogin)/_component/Post";
-import CommentForm from "./_component/CommentForm";
+import CommentForm from "@/app/(afterLogin)/_component/CommentForm";
 
 export default function StatusPage() {
     return (
