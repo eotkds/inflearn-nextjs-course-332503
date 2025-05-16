@@ -14,7 +14,6 @@ type Props = {
         createdAt: Date,
         Images: any[],
     }
-
 }
 export default function PostArticle({children, post}: Props) {
   const router = useRouter();

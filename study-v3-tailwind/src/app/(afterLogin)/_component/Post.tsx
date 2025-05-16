@@ -6,6 +6,7 @@ import { fakerKO as faker } from '@faker-js/faker';
 import Link from "next/link";
 import ActionButtons from "./ActionButtons";
 import PostArticle from "./PostArticle";
+import PostImages from "./PostImages";
 
 export default function Post({noImage}: {noImage?: boolean}) {
   const target = {
@@ -21,6 +22,9 @@ export default function Post({noImage}: {noImage?: boolean}) {
   }
   if (Math.random() > 0.5 && !noImage){
     target.Images.push({imageId: 1, link: faker.image.urlPicsumPhotos()})
+    target.Images.push({imageId: 2, link: faker.image.urlPicsumPhotos()})
+    target.Images.push({imageId: 3, link: faker.image.urlPicsumPhotos()})
+    target.Images.push({imageId: 4, link: faker.image.urlPicsumPhotos()})
   } 
   dayjs.extend(relativeTime);
   dayjs.locale('ko');
@@ -47,12 +51,8 @@ export default function Post({noImage}: {noImage?: boolean}) {
             <span className="text-[rgb(83,100,113)] hover:underline">{dayjs(target.createdAt).fromNow(true)}</span>
           </div>
           <div>{target.content}</div>
-          <div className="inline-block mt-[12px] w-full rounded-[16px]">
-            {target.Images && target.Images.length > 0 && (
-              <Link href={`/${target.User.id}/status/${target.postId}/photo/${target.Images[0].imageId}`}>
-                <img src={target.Images[0].link} alt="" className=""/>
-              </Link>
-            )}
+          <div className="">
+            <PostImages post={target} />
           </div>
           <ActionButtons />
         </div>
