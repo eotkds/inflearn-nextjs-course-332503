@@ -21,10 +21,10 @@ export default function Post({noImage}: {noImage?: boolean}) {
     Images: [] as any[],
   }
   if (Math.random() > 0.5 && !noImage){
-    target.Images.push({imageId: 1, link: faker.image.urlPicsumPhotos()})
-    target.Images.push({imageId: 2, link: faker.image.urlPicsumPhotos()})
-    target.Images.push({imageId: 3, link: faker.image.urlPicsumPhotos()})
-    target.Images.push({imageId: 4, link: faker.image.urlPicsumPhotos()})
+    const imageCount = Math.ceil(Math.random() * 4);
+    for(let i = 0; i < imageCount; i++) {
+      target.Images.push({imageId: i + 1, link: faker.image.urlPicsumPhotos()})
+    }
   } 
   dayjs.extend(relativeTime);
   dayjs.locale('ko');
