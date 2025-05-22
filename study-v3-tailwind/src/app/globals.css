@@ -44,9 +44,11 @@
   --color-background-end-rgb: var(--background-end-rgb);
   --color-background-start-rgb: var(--background-start-rgb);
   --color-foreground-rgb: var(--foreground-rgb);
+  --color-etoGreen: var(--eto-color);
 }
 
 :root {
+  --eto-color: #3faf42;
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
