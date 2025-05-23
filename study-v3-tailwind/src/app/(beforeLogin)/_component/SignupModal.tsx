@@ -1,51 +1,31 @@
-import { redirect } from 'next/navigation';
+"use client";
+
+import onSubmit from '../_lib/signup';
 import BackButton from './BackButton';
+import { useFormState, useFormStatus } from 'react-dom';
+
+function showKorMessage(message: string | null) {
+  if (!message) return "";
+  switch (message) {
+    case "no_id":
+      return "아이디를 입력해주세요.";
+    case "no_name":
+      return "닉네임을 입력해주세요.";
+    case "no_password":
+      return "비밀번호를 입력해주세요.";
+    case "no_image":
+      return "프로필 이미지를 선택해주세요.";
+    case "user_exists":
+      return "이미 존재하는 아이디입니다.";
+    default:
+      return "";
+  }
+}
 
 export default function SignupModal() {
-
-  const submit = async (formData: FormData) => {
-    "use server";
-    console.log(formData);
-    console.log(process.env.NEXT_PUBLIC_API_URL);
-    if (!formData.get('id')) {
-      return { message: 'no_id' };
-    }
-    if (!formData.get('name')) {
-      return { message: 'no_name' };
-    }
-    if (!formData.get('password')) {
-      return { message: 'no_password' };
-    }
-    if (!formData.get('image')) {
-      return { message: 'no_image' };
-    }
-
-    let shouldRedirect = false;
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users`, {
-        method: 'post',
-        body: formData,
-        credentials: 'include',
-      })
-
-      if(response.status === 404) {
-        return { message: 'no_id' };
-      }
-      
-      if (response.status === 403) {
-        return { message: 'user_exists' }
-      }
-      
-      shouldRedirect = true;
-    }catch(err){
-      console.error(err);
-      return;
-    }
-
-    if(shouldRedirect){
-      redirect('/home');
-    }
-  }
+  const [state, formAction] = useFormState(onSubmit, { message: null });
+  const { pending, data, method, action } = useFormStatus();
+  console.log(state);
 
   return (
     <>
@@ -55,7 +35,7 @@ export default function SignupModal() {
             <BackButton />
             <div>계정을 생성하세요.</div>
           </div>
-          <form action={submit} className="flex flex-1 flex-col">
+          <form action={formAction} className="flex flex-1 flex-col">
             <div className="flex-1 px-[80px]">
               <div className="flex flex-col h-[56px] relative my-[12px]">
                 <label className="w-full inline-block absolute top-0 border border-[rgb(207,217,222)] rounded-[4px] text-[13px] h-[56px] pt-[8px] px-[8px] text-[rgb(83,100,113)] focus-within:text-red-500" htmlFor="id">아이디</label>
@@ -75,7 +55,8 @@ export default function SignupModal() {
               </div>
             </div>
             <div className="px-[80px] py-[24px]">
-              <button type="submit" className="w-full h-[50px] rounded-[25px] bg-[rgb(15,20,25)] text-white text-[17px] disabled:opacity-50 hover:bg-[rgb(39,44,48)]">가입하기</button>
+              <button type="submit" className="w-full h-[50px] rounded-[25px] bg-[rgb(15,20,25)] text-white text-[17px] disabled:opacity-50 hover:bg-[rgb(39,44,48)]" disabled={pending}>가입하기</button>
+              <div className="font-bold text-red-500">{showKorMessage(state?.message)}</div>
             </div>
           </form>
         </div>
