@@ -3,21 +3,40 @@
 import {useState} from "react";
 import { useRouter } from "next/navigation";
 import style from "./login.module.css";
+import { signIn } from "next-auth/react"
 
 export default function LoginModal() {
-  const [id, setId] = useState();
-  const [password, setPassword] = useState();
-  const [message, setMessage] = useState();
   const router = useRouter();
+  const [id, setId] = useState('');
+  const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
 
-  const onSubmit = () => {};
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setMessage('');
+    try{
+      signIn("credentials", {
+        id,
+        password,
+        redirect: false,
+      });
+      router.replace("/home");
+    }catch(error){
+        console.log(error);
+        setMessage("아이디 또는 비밀번호가 일치하지 않습니다.");
+    }
+  };
   const onClickClose = () => {
     router.back();
   };
 
-  const onChangeId = () => {};
+  const onChangeId = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setId(e.target.value);
+  };
 
-  const onChangePassword = () => {};
+  const onChangePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
+  };
 
   return (
     <div className="w-[100dvw] h-full flex justify-center absolute top-0 left-0 right-0 bottom-0 bg-[rgba(0,0,0,0.4)]">
