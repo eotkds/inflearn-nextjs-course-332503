@@ -1,4 +1,4 @@
-
+import { auth } from "@/auth";
 import Link from "next/link";
 import Image from "next/image";
 import dLogo from "@/../public/dlogo.jpeg";
@@ -8,22 +8,26 @@ import TrendSection from "./_component/TrendSection";
 import FollowRecommend from "./_component/FollowRecommend";
 import RightSearchZone from "./_component/RightSearchZone";
 
-export default function AfterLoginLayout({
+export default async function AfterLoginLayout({
   children, modal,
 }: {
   children: React.ReactNode;
   modal: React.ReactNode;
 }) {
+  const session = await auth();
+
   return (
     <div className="flex items-stretch bg-white">
       <header className="flex flex-col items-end grow">
         <section className="w-[72px] xl:w-[275px] h-[100dvh] ">
           <div className="fixed w-[inherit] h-[100dvh] flex flex-col items-center xl:items-start px-[8px] xl:p-0">
-            <Link href="/home" className="inline-block h-[56px] mt-[2px]">
+            <Link href={session?.user ? "/home" : "/"} className="inline-block h-[56px] mt-[2px]">
               <div className="w-[50px] h-[50px] rounded-[50%] flex justify-center items-center hover:bg-[rgba(15,20,25,0.1)]">
                 <Image src={dLogo} alt="d.com로고" width={40} height={40} />
               </div>
             </Link>
+            {session?.user && (
+              <>
             <nav className="flex-1">
               <ul>
                 <NavMenu />
@@ -34,6 +38,7 @@ export default function AfterLoginLayout({
               </Link>
             </nav>
             <LogoutButton />
+            </>)}
           </div>
         </section>
       </header>

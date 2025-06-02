@@ -1,16 +1,20 @@
-"use client";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 import Main from "@/app/(beforeLogin)/_component/Main";
+import RedirectPage from "./_component/RedirectPage";
 
 
-export default function LoginPage() {
-    const router = useRouter();
-    useEffect(() => {
-        router.replace("/i/flow/login");
-    }, []);
+export default async function LoginPage() {
+    const session = await auth()
     
+    if(session?.user) {
+        redirect("/home");
+    }
+
     return (
-        <Main />
+        <>
+            <RedirectPage />
+            <Main />
+        </>
     )
 }

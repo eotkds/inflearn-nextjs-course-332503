@@ -1,8 +1,15 @@
 import Image from "next/image";
 import dLogo from "@/../public/dlogo.jpeg";
 import Link from "next/link";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 
-export default function Main() {
+export default async function Main() {
+  const session = await auth();
+
+  if(session?.user) {
+    redirect("/home");
+  }
   return (
     <>
       <div className="flex flex-1 justify-center items-center">
