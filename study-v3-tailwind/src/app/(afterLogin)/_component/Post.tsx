@@ -1,8 +1,8 @@
-"use client";
-
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/ko"; // 한국어 로케일 추가
+dayjs.locale("ko");
+dayjs.extend(relativeTime);
 
 import Link from "next/link";
 import ActionButtons from "./ActionButtons";
@@ -15,9 +15,6 @@ type Props = {
 };
 export default function Post({ noImage, post }: Props) {
   const target = post;
-
-  dayjs.extend(relativeTime);
-  dayjs.locale("ko");
 
   return (
     <PostArticle post={target}>
@@ -36,7 +33,10 @@ export default function Post({ noImage, post }: Props) {
               <span className="text-[rgb(83,100,113)]">@{target.User.id}</span>
               &nbsp; · &nbsp;
             </Link>
-            <span className="text-[rgb(83,100,113)] hover:underline">{dayjs(target.createdAt).fromNow(true)}</span>
+            <span className="text-[rgb(83,100,113)] hover:underline">{dayjs(target.createdAt).fromNow()}</span>
+            {/* <span className="text-[rgb(83,100,113)] hover:underline">
+              {dayjs(target.createdAt).format("YYYY-MM-DD HH:mm")}
+            </span> */}
           </div>
           <div>{target.content}</div>
           <div className="">

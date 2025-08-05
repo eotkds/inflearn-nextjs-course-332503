@@ -17,7 +17,7 @@ export default async function AfterLoginLayout({
   modal: React.ReactNode;
 }) {
   const session = await auth();
-  console.log("session", session);
+  // console.log("session", session);
   return (
     <div className="flex items-stretch bg-white">
       <header className="flex flex-col items-end grow">
