@@ -5,9 +5,10 @@ import dLogo from "@/../public/dlogo.jpeg";
 import NavMenu from "./_component/NavMenu";
 import LogoutButton from "./_component/LogoutButton";
 import TrendSection from "./_component/TrendSection";
-import FollowRecommend from "./_component/FollowRecommend";
+
 import RightSearchZone from "./_component/RightSearchZone";
 import RQProvider from "./_component/RQProvider";
+import FollowRecommendSection from "./_component/FollowRecommendSection";
 
 export default async function AfterLoginLayout({
   children,
@@ -65,9 +66,7 @@ export default async function AfterLoginLayout({
               <TrendSection />
               <div className="text-[20px] font-bold bg-[rgb(247,249,249)] rounded-[16px] my-[12px] px-[16px] py-[12px]">
                 <h3 className="pb-[12px]">팔로우 추천</h3>
-                <FollowRecommend />
-                <FollowRecommend />
-                <FollowRecommend />
+                <FollowRecommendSection />
               </div>
             </section>
           </div>

@@ -1,5 +1,5 @@
 import SearchForm from "@/app/(afterLogin)/_component/SearchForm";
-import Trend from "../_component/Trend";
+import TrendSection from "./_component/TrendSection";
 
 export default function ExplorePage() {
   return (
@@ -9,17 +9,7 @@ export default function ExplorePage() {
       </div>
       <div className="text-[20px] font-bold pt-[12px] border-t border-[rgb(239,243,244)]">
         <h3 className="mt-[12px] px-[16px]">나를 위한 트랜드</h3>
-        <Trend />
-        <Trend />
-        <Trend />
-        <Trend />
-        <Trend />
-        <Trend />
-        <Trend />
-        <Trend />
-        <Trend />
-        <Trend />
-        <Trend />
+        <TrendSection />
       </div>
     </main>
   );

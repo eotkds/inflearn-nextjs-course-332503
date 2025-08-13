@@ -1,13 +1,9 @@
-"use client"
+"use client";
 
-export default function FollowRecommend() {
+import { User } from "@/model/User";
+
+export default function FollowRecommend({ user }: { user: User }) {
   const onFollow = () => {};
-
-  const user = {
-    id: 'elonmusk',
-    nickname: 'Elon Musk',
-    image: '/yRsRRjGO.jpg'
-  };
 
   return (
     <div className="flex py-[12px] h-[66px]">
@@ -21,8 +17,13 @@ export default function FollowRecommend() {
         <div className="text-[rgb(83,100,113)] text-[13px] leading-[16px]">@{user.id}</div>
       </div>
       <div className="w-[76px]">
-        <button onClick={onFollow} className="border-none cursor-pointer w-full text-white bg-black text-[14px] font-bold h-[32px] rounded-[16px] hover:bg-[rgb(39,44,48)]">팔로우</button>
+        <button
+          onClick={onFollow}
+          className="border-none cursor-pointer w-full text-white bg-black text-[14px] font-bold h-[32px] rounded-[16px] hover:bg-[rgb(39,44,48)]"
+        >
+          팔로우
+        </button>
       </div>
     </div>
-  )
+  );
 }
